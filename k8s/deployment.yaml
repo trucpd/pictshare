@@ -1,0 +1,32 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: pictshare
+  namespace: pictshare
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: pictshare
+  template:
+    metadata:
+      labels:
+        app: pictshare
+    spec:
+      containers:
+      - name: pictshare
+        image: ${DOCKER_IMAGE_NAME}:${CI_COMMIT_SHORT_SHA}
+        ports:
+        - containerPort: 80
+        env:
+        - name: UPLOAD_MAX_SIZE
+          value: "50"
+        - name: UPLOAD_FORM_LIMIT
+          value: "50"
+        volumeMounts:
+        - name: pictshare-data
+          mountPath: /usr/share/nginx/html/data
+      volumes:
+      - name: pictshare-data
+        persistentVolumeClaim:
+          claimName: pictshare-pvc
